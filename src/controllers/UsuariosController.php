@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/log.php';
 require_once __DIR__ . '/../middleware/AutentificadorJWT.php';
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -45,7 +46,8 @@ class UsuariosController
     
     
 
-    public function login(Request $request, Response $response, $args) {
+    public function login(Request $request, Response $response, $args)
+    {
         $data = $request->getParsedBody();
         $usuario = $data['usuario'];
         $contraseña = $data['contraseña'];
@@ -56,7 +58,8 @@ class UsuariosController
         $stmt->execute([$usuario]);
         $usuario = $stmt->fetch();
     
-        if ($usuario && password_verify($contraseña, $usuario['contraseña'])) {
+        if ($usuario && password_verify($contraseña, $usuario['contraseña']))
+        {
             $payload = [
                 'usuario' => $usuario['usuario'],
                 'perfil' => $usuario['perfil'],
@@ -65,7 +68,13 @@ class UsuariosController
             ];
             $token = AutentificadorJWT::crearToken($payload);
             $response->getBody()->write(json_encode(['token' => $token]));
-        } else {
+
+            $log = LogAuditoria($usuario['usuario']);
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+        else
+        {
             $response->getBody()->write(json_encode(["error" => "Usuario o contraseña incorrectos"]));
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
@@ -73,19 +82,26 @@ class UsuariosController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function datos(Request $request, Response $response, $args) {
+    public function datos(Request $request, Response $response, $args)
+    {
         $token = $request->getHeaderLine('Authorization');
-        if (preg_match('/Bearer\s(\S+)/', $token, $matches)) {
+        if (preg_match('/Bearer\s(\S+)/', $token, $matches))
+        {
             $token = $matches[1];
-        } else {
+        }
+        else
+        {
             $response->getBody()->write(json_encode(['error' => 'Token no encontrado']));
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
 
-        try {
+        try
+        {
             $data = AutentificadorJWT::obtenerData($token);
             $response->getBody()->write(json_encode($data));
-        } catch (Exception $e) {
+        }
+        catch (Exception $e)
+        {
             $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }

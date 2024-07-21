@@ -68,7 +68,8 @@ class DatabaseSetup
                 producto VARCHAR(255) NOT NULL,
                 cantidad INT NOT NULL,
                 tiempo_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                tiempo_preparacion VARCHAR(255) NOT NULL
+                tiempo_preparacion VARCHAR(255) NOT NULL,
+                foto VARCHAR(255) NOT NULL
             )
         ");
 
@@ -96,6 +97,15 @@ class DatabaseSetup
                 id_mesa VARCHAR(255) NOT NULL,
                 id_pedido VARCHAR(255) NOT NULL,
                 experiencia VARCHAR(255) NOT NULL
+            )
+        ");
+
+        $this->pdo->exec("
+            CREATE TABLE IF NOT EXISTS log_auditoria (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                usuario VARCHAR(255) NOT NULL,
+                fecha VARCHAR(255) NOT NULL,
+                hora VARCHAR(255) NOT NULL
             )
         ");
     }

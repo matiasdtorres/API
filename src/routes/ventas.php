@@ -15,5 +15,7 @@ $app->group('/ventas', function (RouteCollectorProxy $group)
     $group->put('/cerrar', 'VentasController:cerrarMesa')->add(new ConfirmarPerfil(['admin', 'socio']));
     $group->get('/listadomesas', 'VentasController:listadoMesas')->add(new ConfirmarPerfil(['socio']));
     $group->get('/pedidosempleado', 'VentasController:pedidosempleado')->add(new ConfirmarPerfil(['admin', 'socio']));
+    $group->get('/masvendido', 'VentasController:masVendido')->add(new ConfirmarPerfil(['admin', 'socio']));
     $group->get('/descargar', 'VentasController:descargar')->add(new ConfirmarPerfil(['admin']));
+    $group->get('/pdf', 'VentasController:pdf')->add(new ConfirmarPerfil(['admin', 'socio']));
 });

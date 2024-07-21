@@ -11,7 +11,6 @@ class VentasController
         $data = $request->getParsedBody();
         $empleado = $data['empleado_a_cargo'];
         
-        // Conectar a la base de datos
         $db = conectar();
 
         // Verificar si el usuario existe
@@ -36,34 +35,23 @@ class VentasController
         $stmt->execute([$nombre_producto]);
         $producto = $stmt->fetch();
 
-        // Verifica que exista y sino crea la ruta de la imagen si no existe
-        $rutaCarpeta = __DIR__ . '/../FotosDeMesas/2024';
+        // Guarda la foto
+        $rutaCarpeta = __DIR__ . '/../img/pedidos/2024';
         if (!is_dir($rutaCarpeta))
         {
             mkdir($rutaCarpeta, 0777, true);
         }
-
         $fecha = date('d-m-Y_H_i_s');
-        $nombreImagen = "mesa-{$id_mesa}_producto-{$nombre_producto}_cantidad-{$cantidad}_" . "_{$fecha}.jpg";
-        $rutaImagen = $rutaCarpeta . "/{$nombreImagen}";
-
-        try
-        {
-            $imagen->moveTo($rutaImagen);
-        }
-        catch (Exception $e)
-        {
-            error_log("Error al mover la imagen: " . $e->getMessage());
-        }
-
-        $rutaImagenRelativa = "/FotosDeMesas/2024/$nombreImagen";
+        $nombreFoto = "mesa-{$id_mesa}_producto-{$nombre_producto}_cantidad-{$cantidad}_" . "_{$fecha}.jpg";
+        $rutaFoto = $rutaCarpeta . "/{$nombreFoto}";
+        $imagen->moveTo($rutaFoto);
 
         if ($producto)
         {
             $estadodefault = "comanda recibida";
 
-            $stmt = $db->prepare("INSERT INTO pedidos (id_mesa, empleado_a_cargo, producto, cantidad, tiempo_preparacion) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$id_mesa, $empleado, $nombre_producto, $cantidad, $estadodefault]);
+            $stmt = $db->prepare("INSERT INTO pedidos (id_mesa, empleado_a_cargo, producto, cantidad, tiempo_preparacion, foto) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$id_mesa, $empleado, $nombre_producto, $cantidad, $estadodefault, $nombreFoto]);
 
 
             $response->getBody()->write("pedido registrado exitosamente");
@@ -345,6 +333,42 @@ class VentasController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function masVendido(Request $request, Response $response, $args)
+    {
+        try
+        {
+            $db = conectar();
+            
+            $fechaDesde = date('Y-m-d', strtotime('-30 days'));
+            
+            $stmt = $db->prepare(
+                "SELECT producto, SUM(cantidad) AS total_vendido 
+                FROM pedidos 
+                WHERE tiempo_pedido >= :fechaDesde 
+                GROUP BY producto 
+                ORDER BY total_vendido DESC 
+                LIMIT 1"
+            );
+            $stmt->bindParam(':fechaDesde', $fechaDesde);
+            $stmt->execute();
+            
+            $producto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$producto)
+            {
+                throw new Exception("No se encontro ningun producto en los ultimos 30 días");
+            }
+
+            $response->getBody()->write(json_encode($producto));
+        }
+        catch (Exception $e)
+        {
+            $response->getBody()->write(json_encode(["error" => $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function descargar(Request $request, Response $response, $args)
     {
         $db = conectar();
@@ -366,5 +390,69 @@ class VentasController
         fclose($file);
 
         return $response;
+    }
+
+    public function pdf(Request $request, Response $response, $args)
+    {
+        $db = conectar();
+        if ($db === null)
+        {
+            $response->getBody()->write(json_encode(['error' => 'error de conexion']));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+        
+        $stmt = $db->query("SELECT id_pedido, id_mesa, empleado_a_cargo, producto, cantidad, foto FROM pedidos");
+        $orders = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 12);
+        
+        // Agrego logo en la esquina superior derecha
+        $pdf->Image(__DIR__ . '/../img/logo.jpg', 150, 10, 30);
+        
+        $pdf->Cell(40, 10, 'Listado de Pedidos');
+        $pdf->Ln();
+
+        foreach ($orders as $order)
+        {
+            $pdf->Cell(40, 5, "________________________");
+            $pdf->Ln();
+            $pdf->Cell(40, 10, "ID: " . $order->id_pedido);
+            $pdf->Ln();
+            $pdf->Cell(40, 10, "id_mesa: " . $order->id_mesa);
+            $pdf->Ln();
+            $pdf->Cell(40, 10, "empleado a cargo: " . $order->empleado_a_cargo);
+            $pdf->Ln();
+            $pdf->Cell(40, 10, "producto: " . $order->producto);
+            $pdf->Ln();
+            $pdf->Cell(40, 10, "cantidad: " . $order->cantidad);
+            $pdf->Ln();
+            $pdf->Cell(40, 10, "foto: ");
+
+            // Verificar si la foto existe
+            $fotoPath = __DIR__ . '/../img/pedidos/2024/' . $order->foto;
+            if (file_exists($fotoPath))
+            {
+                // Añadir la foto al PDF
+                $pdf->Ln();
+                $pdf->Image($fotoPath, $pdf->GetX(), $pdf->GetY(), 30);
+                $pdf->Ln(30);
+                $pdf->Ln();
+            }
+            else
+            {
+                $pdf->Cell(40, 10, "Foto no disponible");
+                $pdf->Ln();
+            }
+            $pdf->Ln();
+            $pdf->Ln();
+        }
+
+        $pdfContent = $pdf->Output('S');
+        $response->getBody()->write($pdfContent);
+        
+        return $response->withHeader('Content-Type', 'application/pdf')
+                        ->withHeader('Content-Disposition', 'attachment; filename="ventas.pdf"');
     }
 }
