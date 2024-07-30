@@ -15,7 +15,7 @@ class UsuariosController
         $contraseña = password_hash($data['contraseña'], PASSWORD_DEFAULT);
         $perfil = $data['perfil'];
 
-        $perfilesPermitidos = ["admin", "socio", "mozo"];
+        $perfilesPermitidos = ["admin", "socio", "mozo", "chef"];
         if (!in_array($perfil, $perfilesPermitidos))
         {
             $response->getBody()->write(json_encode(["error" => "Perfil no válido. Los perfiles permitidos son 'admin', 'socio' o 'mozo'"]));

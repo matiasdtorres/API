@@ -90,6 +90,32 @@ class VentasController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function atrasarPedido(Request $request, Response $response, $args)
+    {
+        $data = $request->getParsedBody();
+        $id_pedido = $data['id_pedido'];
+        $atrasado = $data['atrasado'];
+
+        $db = conectar();
+        $stmt = $db->prepare("SELECT * FROM pedidos WHERE id_pedido = ? AND tiempo_preparacion = 'en preparacion'");
+        $stmt->execute([$id_pedido]);
+        $pedido = $stmt->fetch();
+
+        if ($pedido)
+        {
+            $stmt = $db->prepare("UPDATE pedidos SET atrasado = ? WHERE id_pedido = ?");
+            $stmt->execute([$atrasado, $id_pedido]);
+
+            $response->getBody()->write(json_encode(["mensaje" => "Pedido modificado exitosamente"]));
+        }
+        else
+        {
+            $response->getBody()->write(json_encode(["error" => "No existe un pedido con ese id o no está en preparación"]));
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function estadoPedido(Request $request, Response $response, $args)
     {
         $params = $request->getQueryParams();
@@ -155,11 +181,31 @@ class VentasController
         $stmt = $db->prepare("SELECT id_pedido, producto, tiempo_preparacion FROM pedidos WHERE empleado_a_cargo = ? AND tiempo_preparacion = 'en preparacion'");
         $stmt->execute([$empleado_a_cargo]);
 
-        // Verifico si se encontro algún pedido
+        // Verifico si se encontro algun pedido
         $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if (empty($pedidos))
         {
             $response->getBody()->write(json_encode(['error' => 'Empleado o pedido "en preparacion" no encontrado']));
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
+
+        $response->getBody()->write(json_encode($pedidos));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function pedidosAtrasados(Request $request, Response $response, $args)
+    {
+
+        $db = conectar();
+
+        $stmt = $db->prepare("SELECT id_pedido, producto, tiempo_preparacion, atrasado FROM pedidos WHERE atrasado = 'si'");
+        $stmt->execute();
+
+        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($pedidos))
+        {
+            $response->getBody()->write(json_encode(['error' => 'No se encontraron pedidos atrasados']));
             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
         }
 

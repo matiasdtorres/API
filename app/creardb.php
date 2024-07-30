@@ -69,7 +69,8 @@ class DatabaseSetup
                 cantidad INT NOT NULL,
                 tiempo_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 tiempo_preparacion VARCHAR(255) NOT NULL,
-                foto VARCHAR(255) NOT NULL
+                foto VARCHAR(255) NOT NULL,
+                atrasado VARCHAR(255) NOT NULL
             )
         ");
 
