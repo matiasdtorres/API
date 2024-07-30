@@ -310,7 +310,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjA0MjM1NDAsImV4cCI6MTcyMDQyNzE0MCwiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMDQyMzU0MCwiZXhwIjoxNzIwNDI3MTQwfX0.44wKy0VV2Nmwg8HzKBxzaM9E9s_V5KCptIxYNCD-Tqs",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjE1NjMzNTYsImV4cCI6MTcyMTU2Njk1NiwiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMTU2MzM1NiwiZXhwIjoxNzIxNTY2OTU2fX0.GjZWp6prb1Z2GcdW9FOBg2Y0_EzS2bSWdP_QV9T959Y",
 							"type": "string"
 						}
 					]
@@ -322,7 +322,7 @@
 					"formdata": [
 						{
 							"key": "id_mesa",
-							"value": "2",
+							"value": "1",
 							"type": "text"
 						},
 						{
@@ -337,7 +337,7 @@
 						},
 						{
 							"key": "cantidad",
-							"value": "10",
+							"value": "1",
 							"type": "text"
 						},
 						{
@@ -364,6 +364,51 @@
 		},
 		{
 			"name": "modificar pedido",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjA0MTk4MTAsImV4cCI6MTcyMDQyMzQxMCwiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMDQxOTgxMCwiZXhwIjoxNzIwNDIzNDEwfX0.qjDI9XEV9s9ddQZ1P98eWWb8MnbJcikL8kZabDHirhI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Typ",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id_pedido\": 1,\r\n  \"empleado_a_cargo\": \"matias\",\r\n  \"tiempo_preparacion\": \"en preparacion\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:777/ventas/modificar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "777",
+					"path": [
+						"ventas",
+						"modificar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atrasar Pedido",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -635,6 +680,55 @@
 		},
 		{
 			"name": "pendientes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjA0MjcyODQsImV4cCI6MTcyMDQzMDg4NCwiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMDQyNzI4NCwiZXhwIjoxNzIwNDMwODg0fX0.BnFcT2ML-DlB6FHrrE-ukwYpgXWdxevFXkfaSWL9i-c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:777/ventas/pendientes?empleado_a_cargo=matias",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "777",
+					"path": [
+						"ventas",
+						"pendientes"
+					],
+					"query": [
+						{
+							"key": "empleado_a_cargo",
+							"value": "matias"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pedidos atrasados",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -960,7 +1054,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjAzOTA5MTAsImV4cCI6MTcyMDM5NDUxMCwiZGF0YSI6eyJ1c3VhcmlvIjoibWF0aWFzIiwicGVyZmlsIjoiYWRtaW4iLCJpYXQiOjE3MjAzOTA5MTAsImV4cCI6MTcyMDM5NDUxMH19.arq2oeiNctjOiY-X-Uu9JXbgs2qF-999P2bbJp3XlMQ",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjE1NjU3MDcsImV4cCI6MTcyMTU2OTMwNywiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMTU2NTcwNywiZXhwIjoxNzIxNTY5MzA3fX0.jmZ5oVOaC_3oNXbfGOa7bBh-OqQ0onA_P_K4Y1qfwbI",
 							"type": "string"
 						}
 					]
@@ -968,7 +1062,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:777/ventas/descargar",
+					"raw": "http://localhost:777/ventas/masvendido",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -976,7 +1070,7 @@
 					"port": "777",
 					"path": [
 						"ventas",
-						"descargar"
+						"masvendido"
 					]
 				}
 			},
@@ -990,7 +1084,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjA0MjM1NDAsImV4cCI6MTcyMDQyNzE0MCwiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMDQyMzU0MCwiZXhwIjoxNzIwNDI3MTQwfX0.44wKy0VV2Nmwg8HzKBxzaM9E9s_V5KCptIxYNCD-Tqs",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjE1NjMzNTYsImV4cCI6MTcyMTU2Njk1NiwiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMTU2MzM1NiwiZXhwIjoxNzIxNTY2OTU2fX0.GjZWp6prb1Z2GcdW9FOBg2Y0_EzS2bSWdP_QV9T959Y",
 							"type": "string"
 						}
 					]
@@ -1050,7 +1144,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjAzOTA5MTAsImV4cCI6MTcyMDM5NDUxMCwiZGF0YSI6eyJ1c3VhcmlvIjoibWF0aWFzIiwicGVyZmlsIjoiYWRtaW4iLCJpYXQiOjE3MjAzOTA5MTAsImV4cCI6MTcyMDM5NDUxMH19.arq2oeiNctjOiY-X-Uu9JXbgs2qF-999P2bbJp3XlMQ",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjE1NjMzNTYsImV4cCI6MTcyMTU2Njk1NiwiZGF0YSI6eyJ1c3VhcmlvIjoic3Vrb3IiLCJwZXJmaWwiOiJzb2NpbyIsImlhdCI6MTcyMTU2MzM1NiwiZXhwIjoxNzIxNTY2OTU2fX0.GjZWp6prb1Z2GcdW9FOBg2Y0_EzS2bSWdP_QV9T959Y",
 							"type": "string"
 						}
 					]
@@ -1058,7 +1152,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:777/ventas/descargar",
+					"raw": "http://localhost:777/ventas/pdf",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1066,7 +1160,7 @@
 					"port": "777",
 					"path": [
 						"ventas",
-						"descargar"
+						"pdf"
 					]
 				}
 			},
